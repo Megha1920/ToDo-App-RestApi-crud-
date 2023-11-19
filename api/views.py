@@ -15,30 +15,46 @@ class Todocrud(APIView):
         return Response(response_data,status=status.HTTP_200_OK)
     
     def post(self,request):
-        title = request.data.get('title')
-        completed=request.data.get('completed')
-        Task.objects.create(title=title,completed=completed)
-        response_data = {"response":"item Created"}
-        return Response(response_data,status=status.HTTP_200_OK)
+        serializer = TaskSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+        return Response(serializer.data,status=status.HTTP_200_OK)
+        # title = request.data.get('title')
+        # completed=request.data.get('completed')
+        # Task.objects.create(title=title,completed=completed)
+        # response_data = {"response":"item Created"}
+        # return Response(response_data,status=status.HTTP_200_OK)
     
     def put(self,request,id):
-        title = request.data.get('title')
-        completed=request.data.get('completed')
-        task = Task.objects.filter(id=id)
-        
+        task = Task.objects.get(id=id)
         if task is None:
-            response_data = {"response":"Item doesnot exists"}
-            return Response(response_data,status=status.HTTP_404_NOT_FOUND)
-        task.title = title
-        task.completed = completed
-        for i in task:
-            i.title = title
-            i.completed = completed
-            i.save()
-            
-        
+           response_data = {"response":"Item doesnot exists"}
+           return Response(response_data,status=status.HTTP_404_NOT_FOUND)
+        serializer = TaskSerializer(instance=task, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
         response_data = {"response":"item Updated"}
         return Response(response_data,status=status.HTTP_200_OK)
+        # title = request.data.get('title')
+        # completed=request.data.get('completed')
+        # task = Task.objects.filter(id=id)
+        
+        # if task is None:
+        #     response_data = {"response":"Item doesnot exists"}
+        #     return Response(response_data,status=status.HTTP_404_NOT_FOUND)
+        # task.title = title
+        # task.completed = completed
+        # for i in task:
+        #     i.title = title
+        #     i.completed = completed
+        #     i.save()
+            
+        
+        # response_data = {"response":"item Updated"}
+        # return Response(response_data,status=status.HTTP_200_OK)
     
     def delete(self,request,id):
         id=request.data.get('id')
